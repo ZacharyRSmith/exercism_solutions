@@ -1,13 +1,8 @@
 """Connect where players try to connect from one edge to the other on a hex board."""
-
-
 # Six neighboring directions on a hex axial grid.
 OFFSETS = [(0, 1), (0, -1), (1, 0), (-1, 0), (-1, 1), (1, -1)]
-
-
 class ConnectGame:
     """Connect logic."""
-
     def __init__(self, board: str):
         """Initialize a board."""
         board = board.replace(" ", "")
@@ -24,28 +19,25 @@ class ConnectGame:
         }
         # Far edge location.
         self.max = (len(lines[0]) - 1, len(lines) - 1)
-
     @staticmethod
     def neighbors(piece: tuple[int, int]) -> list[tuple[int, int]]:
         """Return all possible neighbor coordinates for a piece."""
         p_q, p_r = piece
         return [(p_q + dq, p_r + dr) for dq, dr in OFFSETS]
-
     def get_winner(self) -> str:
         """Return the winner for the current board, if any."""
         # X plays along the horizonal q-axis and ) plays the r-axis.
         for player, axis in [("O", 1), ("X", 0)]:
-            winner = self._get_winner(player, axis)
-            if winner:
-                return winner
+            pieces = self.pieces[player]
+            # Start with any piece on the near edge.
+            start = next((p for p in pieces if p[axis] == 0), None)
+            if self._can_reach_opposite_edge(start, axis, pieces):
+                return player
         return ""
 
-    def _get_winner(self, player, axis):
-        pieces = self.pieces[player]
-        # Start with any piece on the near edge.
-        start = next((p for p in pieces if p[axis] == 0), None)
+    def _can_reach_opposite_edge(self, start, axis, pieces):
         if start is None:
-            return
+            return False
 
         # Use Dijkstra's to follow pieces across the board.
         todo = {start}
@@ -53,12 +45,14 @@ class ConnectGame:
         while todo:
             cur = todo.pop()
             done.add(cur)
-            # If a piece reaches the far edge, the player wins.
+            # start can reach the opposite edge
             if cur[axis] == self.max[axis]:
-                return player
+                return True
             for coord in self.neighbors(cur):
                 if coord not in pieces:
                     continue
                 if coord in done:
                     continue
-                todo.add(coord)
+                todo.add(coord)        
+
+        return False
