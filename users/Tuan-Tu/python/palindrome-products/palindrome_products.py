@@ -8,7 +8,7 @@ def validate_input(max_factor: int, min_factor: int) -> None:
 
 def is_palindrome(number):
     # ? check whether if a number is palindrome by comparing the number to its reversed version
-    a = list(str(number))
+    a = str(number)
     return a == a[::-1]
 
 
@@ -33,11 +33,8 @@ def largest(max_factor, min_factor=0):
     validate_input(max_factor, min_factor)
 
     # ? create "reversed" ranges that go from highest to smallest => 1st validated palindrome is highest
-    product_range = reversed(range(min_factor**2, max_factor**2 + 1))
+    product_range = range(max_factor**2 + 1, min_factor**2, -1)
     factor_range = range(max_factor, min_factor - 1, -1)
-
-    # TODO why the below factor_range doesn't work?
-    # factor_range = reversed(range(min_factor, max_factor + 1))
 
     return create_result(factor_range, product_range)
 
