@@ -1,9 +1,15 @@
 """A module implementing functionality for counting words."""
+from collections import Counter
 import string
 
 NOT_CONNECTORS = string.punctuation.replace("'", "")
 
 TRANSLATION_TABLE = str.maketrans(NOT_CONNECTORS, len(NOT_CONNECTORS) * " ")
+
+
+def _get_words(sentence):
+    for word in sentence.translate(TRANSLATION_TABLE).lower().split():
+        yield word.strip("'")
 
 
 def count_words(sentence: str) -> dict[str, int]:
@@ -15,7 +21,7 @@ def count_words(sentence: str) -> dict[str, int]:
         A dict mapping an individual word (combination) to its number of
         occurrences in sentence.
     """
-    words = sentence.translate(TRANSLATION_TABLE).lower().split()
-    words = [word.strip("'") for word in words]
-
-    return {word: words.count(word) for word in words}
+    word_to_count = Counter()
+    for word in _get_words(sentence):
+        word_to_count[word] += 1
+    return dict(word_to_count)
